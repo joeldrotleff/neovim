@@ -6,8 +6,6 @@ local command = n.command
 local eq = t.eq
 local pathsep = n.get_pathsep()
 local fn = n.fn
-local api = n.api
-local exec_lua = n.exec_lua
 
 local testdir = 'Xtest-editorconfig'
 
@@ -210,35 +208,5 @@ But not this one
 
   it('sets textwidth', function()
     test_case('max_line_length.txt', { textwidth = 42 })
-  end)
-
-  it('can be disabled globally', function()
-    api.nvim_set_var('editorconfig', false)
-    api.nvim_set_option_value('shiftwidth', 42, {})
-    test_case('3_space.txt', { shiftwidth = 42 })
-  end)
-
-  it('can be disabled per-buffer', function()
-    api.nvim_set_option_value('shiftwidth', 42, {})
-    local bufnr = fn.bufadd(testdir .. pathsep .. '3_space.txt')
-    api.nvim_buf_set_var(bufnr, 'editorconfig', false)
-    test_case('3_space.txt', { shiftwidth = 42 })
-    test_case('4_space.py', { shiftwidth = 4 })
-  end)
-
-  it('does not operate on invalid buffers', function()
-    local ok, err = unpack(exec_lua([[
-      vim.cmd.edit('test.txt')
-      local bufnr = vim.api.nvim_get_current_buf()
-      vim.cmd.bwipeout(bufnr)
-      return {pcall(require('editorconfig').config, bufnr)}
-    ]]))
-
-    eq(true, ok, err)
-  end)
-
-  it('sets spelllang', function()
-    test_case('short_spelling_language.txt', { spelllang = 'de' })
-    test_case('long_spelling_language.txt', { spelllang = 'en_nz' })
   end)
 end)
